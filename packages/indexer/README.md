@@ -85,7 +85,7 @@ sqd typegen
 
 See more details on the [`squid-evm-typegen` doc page](https://docs.subsquid.io/evm-indexing/squid-evm-typegen).
 
-## Project conventions
+### Project conventions
 
 Squid tools assume a certain [project layout](https://docs.subsquid.io/basics/squid-structure):
 

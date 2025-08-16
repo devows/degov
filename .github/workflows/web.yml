@@ -1,4 +1,4 @@
-name: build web
+name: build degov-web
 
 on:
   push:
@@ -121,7 +121,7 @@ jobs:
       - name: Update manifest
         working-directory: gitops-repo
         run: |
-          DEPLOY_FILE="appsmanifests/go-example/overlays/env/prod/deployment-patch.yaml"
+          DEPLOY_FILE="appsmanifests/degov-web/overlays/env/prod/deployment-patch.yaml"
           
           # Verify file exists
           ls -l ./${DEPLOY_FILE}
