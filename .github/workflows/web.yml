@@ -18,7 +18,7 @@ on:
 env:
   TZ: 'Asia/Shanghai'
   DOCKER_REG_HOST: ghcr.io
-  DOCKERFILE_PATH: web.Dockerfile  # 保持不变
+  DOCKERFILE_PATH: ./docker/web.Dockerfile  # 保持不变
   DOCKER_BUILD_CONTEXT: .      # 保持不变
   IMAGE_NAME_PREFIX: ${{ github.repository_owner }}  # 自动获取组织/用户名
   REPO_URL: ${{ github.server_url }}/${{ github.repository }}
