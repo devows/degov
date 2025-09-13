@@ -49,7 +49,7 @@ function TableSkeleton({
               </div>
             </TableCell>
             <TableCell className="text-center">
-              <div className="flex items-center gap-[10px] justify-end">
+              <div className="flex items-center gap-[10px] justify-center">
                 <Skeleton className="h-6 w-[80px]" />
               </div>
             </TableCell>
@@ -133,8 +133,9 @@ export function TreasuryTable({
   useEffect(() => {
     return () => setVisibleItems(5);
   }, []);
+
   return (
-    <div className="rounded-[14px] bg-card p-[20px]">
+    <div className="rounded-[14px] bg-card p-[20px] shadow-card">
       {isLoading ? (
         <TableSkeleton standard={standard} />
       ) : (

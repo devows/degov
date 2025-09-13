@@ -1,5 +1,4 @@
-import Image from "next/image";
-
+import { ProposalCloseIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -20,31 +19,18 @@ export const ReplacePanel = ({
   return (
     <div
       className={cn(
-        "flex flex-col gap-[20px] rounded-[14px] bg-card p-[20px]",
+        "flex flex-col gap-[20px] rounded-[14px] bg-card p-[20px] shadow-card",
         visible ? "animate-in fade-in duration-300" : "hidden"
       )}
     >
       <header className="flex items-center justify-between">
         <h4 className="text-[18px] font-semibold">Action #{index}</h4>
         <Button
-          className="h-[30px] gap-[5px] rounded-[100px] border border-border/20 bg-card"
+          className="h-[30px] gap-[5px] rounded-[100px] border border-foreground bg-card p-[10px]"
           variant="outline"
           onClick={() => onRemove(index)}
         >
-          <Image
-            src="/assets/image/light/proposal/close.svg"
-            alt="plus"
-            width={16}
-            height={16}
-            className="block dark:hidden"
-          />
-          <Image
-            src="/assets/image/proposal/close.svg"
-            alt="plus"
-            width={16}
-            height={16}
-            className="hidden dark:block"
-          />
+          <ProposalCloseIcon width={16} height={16} className="text-current" />
           <span>Remove action</span>
         </Button>
       </header>

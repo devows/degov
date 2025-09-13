@@ -1,9 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { ProposalCloseIcon, ProposalPlusIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { XAccountFileUploader } from "@/components/xaccount-file-uploader";
 import { useDaoConfig } from "@/hooks/useDaoConfig";
@@ -41,9 +41,14 @@ export const XAccountPanel = ({
   });
 
   const xaccountLink = useMemo(() => {
-    const targetAddress = daoConfig?.contracts?.timeLock || daoConfig?.contracts?.governor;
+    const targetAddress =
+      daoConfig?.contracts?.timeLock || daoConfig?.contracts?.governor;
     return `https://xaccount.degov.ai?sourceChainId=${daoConfig?.chain?.id}&targetContractAddress=${targetAddress}`;
-  }, [daoConfig?.chain?.id, daoConfig?.contracts?.timeLock, daoConfig?.contracts?.governor]);
+  }, [
+    daoConfig?.chain?.id,
+    daoConfig?.contracts?.timeLock,
+    daoConfig?.contracts?.governor,
+  ]);
 
   const handleUploadXAccount = useCallback(
     (jsonContent: XAccountContent) => {
@@ -78,7 +83,7 @@ export const XAccountPanel = ({
   return (
     <div
       className={cn(
-        "flex flex-col gap-[20px] rounded-[14px] bg-card p-[20px] pb-[50px]",
+        "flex flex-col gap-[20px] rounded-[14px] bg-card p-[20px] pb-[50px] shadow-card",
         visible ? "animate-in fade-in duration-300" : "hidden"
       )}
     >
@@ -86,24 +91,11 @@ export const XAccountPanel = ({
         <h4 className="text-[18px] font-semibold">Action #{index}</h4>
 
         <Button
-          className="h-[30px] gap-[5px] rounded-[100px] border border-border/20 bg-card"
+          className="h-[30px] gap-[5px] rounded-[100px] border border-foreground bg-card p-[10px] text-foreground"
           variant="outline"
           onClick={() => onRemove(index)}
         >
-          <Image
-            src="/assets/image/light/proposal/close.svg"
-            alt="plus"
-            width={16}
-            height={16}
-            className="block dark:hidden"
-          />
-          <Image
-            src="/assets/image/proposal/close.svg"
-            alt="plus"
-            width={16}
-            height={16}
-            className="hidden dark:block"
-          />
+          <ProposalCloseIcon width={16} height={16} />
           <span>Remove action</span>
         </Button>
       </div>
@@ -124,22 +116,9 @@ export const XAccountPanel = ({
           execute it in this chain.
         </p>
         <div className="flex justify-center">
-          <Button className="rounded-[100px] bg-foreground" asChild>
+          <Button className="rounded-[100px] bg-foreground text-background" asChild>
             <Link href={xaccountLink} target="_blank" rel="noreferrer">
-              <Image
-                src="/assets/image/light/proposal/plus.svg"
-                alt="plus"
-                width={20}
-                height={20}
-                className="dark:hidden"
-              />
-              <Image
-                src="/assets/image/proposal/plus.svg"
-                alt="plus"
-                width={20}
-                height={20}
-                className="hidden dark:block"
-              />
+              <ProposalPlusIcon width={20} height={20} />
               Generate Action on XAccount Box
             </Link>
           </Button>
@@ -280,10 +259,6 @@ export const XAccountPanel = ({
             {/* Calldatas */}
             <div className="flex flex-col gap-[10px]">
               <h3 className="text-[18px] font-semibold">Parameters</h3>
-              <p className="text-[14px] text-muted-foreground">
-                The data for the function arguments you wish to send when the
-                cross-chain action executes
-              </p>
 
               <div className="flex gap-[10px] items-start">
                 <div className="w-[200px] text-foreground text-[14px] p-[10px] border border-border/20 rounded-[4px] flex items-center bg-card-background">

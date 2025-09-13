@@ -7,6 +7,7 @@ import { useAccount } from "wagmi";
 
 import { DelegateAction } from "@/components/delegate-action";
 import { Faqs } from "@/components/faqs";
+import { MembersList } from "@/components/members-list";
 import { MembersTable } from "@/components/members-table";
 import { SystemInfo } from "@/components/system-info";
 import { Input } from "@/components/ui/input";
@@ -83,10 +84,12 @@ export default function Members() {
   if (showConnectPrompt) {
     return (
       <WithConnect>
-        <div className="flex flex-col gap-[20px]">
-          <div className="flex items-center justify-between gap-[20px]">
-            <h3 className="text-[18px] font-extrabold">{getDisplayTitle()}</h3>
-            <div className="flex h-[36px] w-[388px] items-center gap-[13px] rounded-[20px] border px-[17px] transition-all border-border bg-card">
+        <div className="flex flex-col gap-[15px] lg:gap-[20px]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[10px] sm:gap-[20px]">
+            <h3 className="text-[16px] lg:text-[18px] font-extrabold">
+              {getDisplayTitle()}
+            </h3>
+            <div className="flex h-[36px] w-full sm:w-[388px] items-center gap-[13px] rounded-[20px] border px-[17px] transition-all border-border bg-card">
               <Search className="h-[15px] w-[15px] text-foreground/50" />
               <Input
                 placeholder="Search by address"
@@ -96,14 +99,23 @@ export default function Members() {
               />
             </div>
           </div>
-          <div className="flex items-start gap-[10px]">
+          <div className="flex flex-col lg:flex-row lg:items-start gap-[15px] lg:gap-[10px]">
             <div className="flex-1">
-              <MembersTable
-                onDelegate={handleDelegate}
-                searchTerm={debouncedSearchTerm}
-              />
+              <div className="lg:hidden">
+                <MembersList
+                  onDelegate={handleDelegate}
+                  searchTerm={debouncedSearchTerm}
+                />
+              </div>
+
+              <div className="hidden lg:block">
+                <MembersTable
+                  onDelegate={handleDelegate}
+                  searchTerm={debouncedSearchTerm}
+                />
+              </div>
             </div>
-            <div className="flex flex-col gap-[20px]">
+            <div className="w-[360px] flex-col gap-[15px] lg:gap-[20px] hidden lg:flex">
               <SystemInfo />
               <Faqs type="delegate" />
             </div>
@@ -114,27 +126,37 @@ export default function Members() {
   }
 
   return (
-    <div className="flex flex-col gap-[20px]">
-      <div className="flex items-start gap-[20px]">
-        <div className="flex-1 flex flex-col gap-[20px]">
-          <div className="flex items-center justify-between gap-[20px]">
-            <h3 className="text-[18px] font-extrabold">{getDisplayTitle()}</h3>
-            <div className="flex h-[36px] w-[388px] items-center gap-[13px] rounded-[20px] border px-[17px] transition-all border-border bg-card">
+    <div className="flex flex-col gap-[15px] lg:gap-[20px]">
+      <div className="flex flex-col lg:flex-row lg:items-start gap-[15px] lg:gap-[20px]">
+        <div className="flex-1 flex flex-col gap-[15px] lg:gap-[20px]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[10px] sm:gap-[20px]">
+            <h3 className="text-[16px] lg:text-[18px] font-extrabold">
+              {getDisplayTitle()}
+            </h3>
+            <div className="flex h-[36px] w-full sm:w-[388px] items-center gap-[13px] rounded-[20px] border px-[17px] transition-all border-gray-1 bg-card">
               <Search className="h-[15px] w-[15px] text-foreground/50" />
               <Input
                 placeholder="Search by address"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-full flex-1 appearance-none bg-transparent outline-none border-none focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+                className="h-full flex-1 appearance-none bg-transparent outline-none border-none focus-visible:ring-0 focus-visible:ring-offset-0 p-0 placeholder:text-foreground/50 placeholder:text-[14px] placeholder:font-normal"
               />
             </div>
           </div>
-          <MembersTable
-            onDelegate={handleDelegate}
-            searchTerm={debouncedSearchTerm}
-          />
+          <div className="lg:hidden">
+            <MembersList
+              onDelegate={handleDelegate}
+              searchTerm={debouncedSearchTerm}
+            />
+          </div>
+          <div className="hidden lg:block">
+            <MembersTable
+              onDelegate={handleDelegate}
+              searchTerm={debouncedSearchTerm}
+            />
+          </div>
         </div>
-        <div className="flex flex-col gap-[20px]">
+        <div className="w-[360px] flex-col gap-[15px] lg:gap-[20px] hidden lg:flex">
           <SystemInfo />
           <Faqs type="delegate" />
         </div>

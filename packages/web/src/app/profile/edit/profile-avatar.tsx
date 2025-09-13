@@ -142,7 +142,7 @@ export function ProfileAvatar({
   }, [initialAvatar]);
 
   return (
-    <div className="flex h-[207px] flex-col items-center justify-center gap-[20px] rounded-[14px] bg-card p-[20px]">
+    <div className="flex h-[207px] flex-col items-center justify-center gap-[20px] rounded-[14px] bg-card p-[20px] shadow-card">
       <input
         type="file"
         ref={fileInputRef}
@@ -180,7 +180,7 @@ export function ProfileAvatar({
 
       <Button
         variant="outline"
-        className="w-full rounded-[100px] border-border bg-card"
+        className="w-full rounded-[100px]"
         onClick={handleButtonClick}
         isLoading={isProcessing || isLoading}
       >

@@ -49,6 +49,7 @@ export function DelegationTable({ address }: DelegationTableProps) {
           <AddressWithAvatar
             address={record?.fromDelegate as `0x${string}`}
             avatarSize={30}
+            align="start"
           />
         ),
       },
@@ -72,7 +73,7 @@ export function DelegationTable({ address }: DelegationTableProps) {
   );
 
   return (
-    <div className="rounded-[14px] bg-card p-[20px]">
+    <div className="rounded-[14px] bg-card p-[20px] shadow-card">
       <CustomTable
         dataSource={state.data}
         columns={columns}
@@ -121,7 +122,7 @@ function DelegatorVotesDisplay({
       <div className="text-[14px]" title={formattedAmount?.formatted}>
         {formattedAmount?.formatted}
       </div>
-      <div>({percentage.toFixed(1)}%)</div>
+      <div>({percentage.toFixed(2)}%)</div>
     </div>
   );
 }

@@ -95,19 +95,19 @@ export const Comments = ({ comments, id }: CommentsProps) => {
         icon: "✓",
         label: "For",
         bgColor: "bg-success",
-        textColor: "text-white",
+        textColor: "text-foreground",
       },
       [VoteType.Against]: {
         icon: "✕",
         label: "Against",
         bgColor: "bg-danger",
-        textColor: "text-white",
+        textColor: "text-foreground",
       },
       [VoteType.Abstain]: {
         icon: "—",
         label: "Abstain",
         bgColor: "bg-muted-foreground",
-        textColor: "text-white",
+        textColor: "text-foreground",
       },
     };
 
@@ -246,8 +246,9 @@ export const Comments = ({ comments, id }: CommentsProps) => {
 
           return (
             <div className="text-right">
-              <div className="text-[14px] font-semibold text-foreground">
-                {formattedAmount?.formatted} ({percentage})
+              <div className="text-[14px] text-foreground flex items-center justify-end gap-[5px]">
+                <span>{formattedAmount?.formatted}</span>
+                <span>({percentage})</span>
               </div>
             </div>
           );
@@ -259,40 +260,43 @@ export const Comments = ({ comments, id }: CommentsProps) => {
   const hasMoreItems = visibleCount < filteredComments.length;
 
   return (
-    <div className="rounded-[14px] bg-card p-[20px] flex flex-col h-full min-h-0">
-      <CustomTable
-        dataSource={visibleComments}
-        columns={columns}
-        isLoading={false}
-        emptyText="No votes yet"
-        rowKey="id"
-        maxHeight="100%"
-        tableClassName="table-fixed"
-        bodyClassName={cn(
-          "flex-1 min-h-0",
-          !filteredComments?.length ? "hidden" : ""
-        )}
-        caption={
-          hasMoreItems ? (
-            <div className="flex justify-center py-4">
-              <button
-                onClick={loadMoreComments}
-                disabled={isPending}
-                className="text-foreground transition-colors hover:text-foreground/80"
-              >
-                {isPending
-                  ? "Loading..."
-                  : `Load More (${filteredComments.length - visibleCount})`}
-              </button>
-            </div>
-          ) : filteredComments.length > PAGE_SIZE ? (
-            <div className="text-muted-foreground text-xs">
-              Showing all {filteredComments.length} votes
-            </div>
-          ) : null
-        }
-      />
-
+    <div className="rounded-[14px] bg-card p-[20px] flex flex-col h-full min-h-0 shadow-card">
+      <div className="overflow-x-auto lg:overflow-x-visible">
+        <div className="min-w-[800px] lg:min-w-0">
+          <CustomTable
+            dataSource={visibleComments}
+            columns={columns}
+            isLoading={false}
+            emptyText="No votes yet"
+            rowKey="id"
+            maxHeight="100%"
+            tableClassName="table-fixed"
+            bodyClassName={cn(
+              "flex-1 min-h-0",
+              !filteredComments?.length ? "hidden" : ""
+            )}
+            caption={
+              hasMoreItems ? (
+                <div className="flex justify-center py-4">
+                  <button
+                    onClick={loadMoreComments}
+                    disabled={isPending}
+                    className="text-foreground transition-colors hover:text-foreground/80"
+                  >
+                    {isPending
+                      ? "Loading..."
+                      : `Load More (${filteredComments.length - visibleCount})`}
+                  </button>
+                </div>
+              ) : filteredComments.length > PAGE_SIZE ? (
+                <div className="text-muted-foreground text-xs">
+                  Showing all {filteredComments.length} votes
+                </div>
+              ) : null
+            }
+          />
+        </div>
+      </div>
       <CommentModal
         open={!!currentCommentRow?.reason}
         onOpenChange={() => setCurrentCommentRow(undefined)}

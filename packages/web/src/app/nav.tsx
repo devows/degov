@@ -1,9 +1,9 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
+import { getNavIcon } from "@/components/icons/nav-icon-map";
 import {
   Tooltip,
   TooltipContent,
@@ -16,9 +16,10 @@ import { cn } from "@/lib/utils";
 
 interface NavProps {
   collapsed?: boolean;
+  onMenuToggle?: () => void;
 }
 
-export const Nav = ({ collapsed = false }: NavProps) => {
+export const Nav = ({ collapsed = false, onMenuToggle }: NavProps) => {
   const pathname = usePathname();
   const daoConfig = useDaoConfig();
 
@@ -39,17 +40,18 @@ export const Nav = ({ collapsed = false }: NavProps) => {
         {visibleRoutes.map((route) => {
           const isActive =
             pathname === route.pathname ||
-            pathname.startsWith(route.pathname + "/") ||
-            (pathname.startsWith("/proposal") &&
+            pathname?.startsWith(route.pathname + "/") ||
+            (pathname?.startsWith("/proposal") &&
               route.pathname === "/proposals") ||
-            (pathname.startsWith("/delegate") &&
+            (pathname?.startsWith("/delegate") &&
               route.pathname === "/delegates") ||
-            (pathname.startsWith("/apps") && route.pathname === "/apps");
+            (pathname?.startsWith("/apps") && route.pathname === "/apps");
 
           return (
             <Tooltip key={route.key}>
               <TooltipTrigger asChild>
                 <Link
+                  onClick={onMenuToggle}
                   href={route.pathname}
                   prefetch={false}
                   className={cn(
@@ -65,48 +67,19 @@ export const Nav = ({ collapsed = false }: NavProps) => {
                   }}
                 >
                   <span className="relative flex-shrink-0 h-[32px] w-[32px]">
-                    <Image
-                      src={`/assets/image/light/nav/${route.key}.svg`}
-                      alt={route.key}
-                      width={32}
-                      height={32}
-                      className={cn(
-                        "absolute size-[32px] transition-opacity duration-200 block dark:hidden",
-                        "group-hover:opacity-0"
-                      )}
-                    />
-                    <Image
-                      src={`/assets/image/nav/${route.key}.svg`}
-                      alt={route.key}
-                      width={32}
-                      height={32}
-                      className={cn(
-                        "absolute size-[32px] transition-opacity duration-200 hidden dark:block",
-                        "group-hover:opacity-0"
-                      )}
-                    />
-                    <Image
-                      src={`/assets/image/light/nav/${route.key}-active.svg`}
-                      alt={route.key}
-                      width={32}
-                      height={32}
-                      className={cn(
-                        "absolute size-[32px] transition-opacity duration-200 block dark:hidden",
-                        isActive ? "opacity-100" : "opacity-0",
-                        "group-hover:opacity-100"
-                      )}
-                    />
-                    <Image
-                      src={`/assets/image/nav/${route.key}-active.svg`}
-                      alt={route.key}
-                      width={32}
-                      height={32}
-                      className={cn(
-                        "absolute size-[32px] transition-opacity duration-200 hidden dark:block",
-                        isActive ? "opacity-100" : "opacity-0",
-                        "group-hover:opacity-100"
-                      )}
-                    />
+                    {(() => {
+                      const IconComponent = getNavIcon(route.key);
+                      return (
+                        <IconComponent
+                          width={32}
+                          height={32}
+                          className={cn(
+                            "size-[32px] transition-opacity duration-200",
+                            isActive || "group-hover:opacity-80" ? "opacity-100" : "opacity-60"
+                          )}
+                        />
+                      );
+                    })()}
                   </span>
 
                   {!collapsed && (

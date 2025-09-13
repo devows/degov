@@ -7,7 +7,7 @@ import { useBalance } from "wagmi";
 
 import { AddressInputWithResolver } from "@/components/address-input-with-resolver";
 import { ErrorMessage } from "@/components/error-message";
-import { TokenSelect } from "@/components/token-select";
+import { ProposalCloseIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDaoConfig } from "@/hooks/useDaoConfig";
@@ -86,10 +86,13 @@ export const TransferPanel = ({
   }, [daoConfig]);
 
   const { data: balance, isLoading } = useBalance({
-    address: (daoConfig?.contracts?.timeLock || daoConfig?.contracts?.governor) as Address,
+    address: (daoConfig?.contracts?.timeLock ||
+      daoConfig?.contracts?.governor) as Address,
     chainId: daoConfig?.chain?.id,
     query: {
-      enabled: !!(daoConfig?.contracts?.timeLock || daoConfig?.contracts?.governor) && !!daoConfig?.chain?.id,
+      enabled:
+        !!(daoConfig?.contracts?.timeLock || daoConfig?.contracts?.governor) &&
+        !!daoConfig?.chain?.id,
       gcTime: 0,
     },
   });
@@ -151,31 +154,18 @@ export const TransferPanel = ({
   return (
     <div
       className={cn(
-        "flex flex-col gap-[20px] rounded-[14px] bg-card p-[20px]",
+        "flex flex-col gap-[20px] rounded-[14px] bg-card p-[20px] shadow-card",
         visible ? "animate-in fade-in duration-300" : "hidden"
       )}
     >
       <header className="flex items-center justify-between">
         <h4 className="text-[18px] font-semibold">Action #{index}</h4>
         <Button
-          className="h-[30px] gap-[5px] rounded-[100px] border border-border bg-card"
+          className="h-[30px] gap-[5px] rounded-[100px] border  border-foreground bg-card p-[10px]"
           variant="outline"
           onClick={() => onRemove(index)}
         >
-          <Image
-            src="/assets/image/light/proposal/close.svg"
-            alt="plus"
-            width={16}
-            height={16}
-            className="block dark:hidden"
-          />
-          <Image
-            src="/assets/image/proposal/close.svg"
-            alt="plus"
-            width={16}
-            height={16}
-            className="hidden dark:block"
-          />
+          <ProposalCloseIcon width={16} height={16} className="text-current" />
           <span>Remove action</span>
         </Button>
       </header>
@@ -202,7 +192,7 @@ export const TransferPanel = ({
             )}
           />
           {errors.recipient && (
-            <ErrorMessage message={errors.recipient.message} />
+            <ErrorMessage message={errors?.recipient?.message} />
           )}
         </div>
 
@@ -231,16 +221,27 @@ export const TransferPanel = ({
                   />
                 )}
               />
-              <TokenSelect tokenList={[token]} />
+              <div className="flex items-center gap-[10px] rounded-[10px] border border-border bg-card p-[5px] flex-shrink-0">
+                {token?.icon ? (
+                  <Image
+                    src={token.icon}
+                    alt={token.symbol}
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                  />
+                ) : null}
+                <span className="truncate">{token.symbol}</span>
+              </div>
             </div>
             <div className="flex items-center justify-end gap-[10px]">
               {/* <span className="text-[14px] text-foreground/50"></span> */}
-              <span className="inline-flex flex-shrink-0 items-center gap-[5px] text-[14px] text-foreground/50">
+              <span className="inline-flex flex-shrink-0 items-center gap-[5px] text-[14px] text-muted-foreground">
                 Balance:
                 {isLoading ? (
                   <Skeleton className="h-[20px] w-[80px] rounded-[4px]" />
                 ) : (
-                  <span className="text-[14px] text-foreground/50">
+                  <span className="text-[14px] text-muted-foreground">
                     {formatBigIntForDisplay(
                       balance?.value ?? 0n,
                       token.decimals
@@ -249,10 +250,10 @@ export const TransferPanel = ({
                 )}
               </span>
               <button
-                className="px-2.5 py-0.5 rounded-[100px] outline outline-1 outline-offset-[-1px] outline-neutral-400 inline-flex justify-center items-center gap-2.5 appearance-none hover:opacity-80 transition-opacity duration-200"
+                className="px-2.5  rounded-[100px] outline outline-1 outline-offset-[-1px] outline-neutral-400 inline-flex justify-center items-center gap-2.5 appearance-none hover:opacity-80 transition-opacity duration-200"
                 onClick={handleMaxAmount}
               >
-                <span className="justify-start text-neutral-400 text-sm font-normal">
+                <span className="justify-start text-muted-foreground text-sm font-normal">
                   Max
                 </span>
               </button>

@@ -46,7 +46,7 @@ export const Overview = ({
     return (
       <div className="flex items-center gap-[5px]">
         <div>{formattedVotes}</div>
-        <div>({percentage.toFixed(1)}%)</div>
+        <div>({percentage.toFixed(2)}%)</div>
       </div>
     );
   }, [formattedVotes, votes, dataMetrics?.powerSum]);
@@ -86,7 +86,7 @@ export const Overview = ({
     address,
   ]);
   return (
-    <div className="grid grid-cols-4 gap-[20px] w-full">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-[20px] w-full">
       {data.map((item) => (
         <OverviewItem
           key={item.title}

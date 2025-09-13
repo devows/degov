@@ -1,6 +1,8 @@
 import { blo } from "blo";
 import Image from "next/image";
 
+import { ExternalLinkIcon } from "@/components/icons";
+
 interface AssetProps {
   link: string;
   explorer: string;
@@ -15,7 +17,7 @@ export const Asset = ({ link, explorer, symbol }: AssetProps) => {
       rel="noreferrer"
     >
       <Image
-        src={blo(link as `0x${string}`) || ""}
+        src={blo(link as `0x${string}` || "")}
         alt={symbol || "N/A"}
         className="h-[30px] w-[30px] rounded-full"
         width={30}
@@ -24,19 +26,10 @@ export const Asset = ({ link, explorer, symbol }: AssetProps) => {
       <span className="text-[14px] capitalize text-foreground">
         {symbol || "N/A"}
       </span>
-      <Image
-        src="/assets/image/light/external-link.svg"
-        alt="external-link"
-        className="h-[16px] w-[16px] dark:hidden"
+      <ExternalLinkIcon
         width={16}
         height={16}
-      />
-      <Image
-        src="/assets/image/external-link.svg"
-        alt="external-link"
-        className="h-[16px] w-[16px] hidden dark:block"
-        width={16}
-        height={16}
+        className="h-[16px] w-[16px] text-current"
       />
     </a>
   );

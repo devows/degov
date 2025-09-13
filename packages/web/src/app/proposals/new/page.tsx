@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Fragment,
@@ -13,7 +12,7 @@ import { toast } from "react-toastify";
 import { useImmer } from "use-immer";
 import { toHex } from "viem";
 
-import { NewPublishWarning } from "@/components/new-publish-warning";
+import { PlusIcon } from "@/components/icons";
 import type { SuccessType } from "@/components/transaction-toast";
 import { TransactionToast } from "@/components/transaction-toast";
 import { Button } from "@/components/ui/button";
@@ -74,19 +73,10 @@ const PublishButton = ({
       disabled={disabled}
       isLoading={isLoading}
     >
-      <Image
-        src="/assets/image/light/proposal/plus.svg"
-        alt="plus"
+      <PlusIcon
         width={16}
         height={16}
-        className="block dark:hidden"
-      />
-      <Image
-        src="/assets/image/proposal/plus.svg"
-        alt="plus"
-        width={16}
-        height={16}
-        className="hidden dark:block"
+        className="text-current"
       />
       <span>Publish</span>
     </Button>
@@ -99,7 +89,6 @@ export default function NewProposal() {
   const [actions, setActions] = useImmer<Action[]>(DEFAULT_ACTIONS);
   const [publishLoading, setPublishLoading] = useState(false);
   const [actionUuid, setActionUuid] = useState<string>(DEFAULT_ACTIONS[0].id);
-  const [publishWarningOpen, setPublishWarningOpen] = useState(false);
   const [hash, setHash] = useState<string | null>(null);
   const [tab, setTab] = useState<"edit" | "add" | "preview">("edit");
 
@@ -118,12 +107,7 @@ export default function NewProposal() {
 
   const { createProposal, isPending, proposalId } = useProposal();
 
-  const {
-    formattedVotes,
-    formattedProposalThreshold,
-    hasEnoughVotes,
-    isLoading,
-  } = useMyVotes();
+  const { isLoading } = useMyVotes();
 
   const handleProposalContentChange = useCallback(
     (content: ProposalContent) => {
@@ -251,11 +235,6 @@ export default function NewProposal() {
 
   const handlePublish = useCallback(async () => {
     try {
-      if (!hasEnoughVotes) {
-        setPublishWarningOpen(true);
-        return;
-      }
-
       const result = await transformActionsToProposalParams(actions);
 
       const hash = await createProposal(
@@ -277,7 +256,7 @@ export default function NewProposal() {
     } finally {
       setPublishLoading(false);
     }
-  }, [actions, createProposal, hasEnoughVotes, resetChanges]);
+  }, [actions, createProposal, resetChanges]);
 
   const handlePublishSuccess: SuccessType = useCallback(() => {
     if (proposalId) {
@@ -318,26 +297,17 @@ export default function NewProposal() {
               onClick={handlePublish}
               isLoading={publishLoading || isPending || isLoading}
             >
-              <Image
-                src="/assets/image/light/proposal/plus.svg"
-                alt="plus"
+              <PlusIcon
                 width={16}
                 height={16}
-                className="block dark:hidden"
-              />
-              <Image
-                src="/assets/image/proposal/plus.svg"
-                alt="plus"
-                width={16}
-                height={16}
-                className="hidden dark:block"
+                className="text-current"
               />
               <span>Publish</span>
             </Button>
           )}
         </header>
 
-        <div className="flex gap-[30px]">
+        <div className="flex gap-[30px] flex-col lg:flex-row">
           <Sidebar
             actions={actions}
             actionUuid={actionUuid}
@@ -411,12 +381,6 @@ export default function NewProposal() {
           </main>
         </div>
       </div>
-      <NewPublishWarning
-        open={publishWarningOpen}
-        onOpenChange={setPublishWarningOpen}
-        proposalThreshold={formattedProposalThreshold}
-        votes={formattedVotes}
-      />
       {hash && (
         <TransactionToast
           hash={hash as `0x${string}`}

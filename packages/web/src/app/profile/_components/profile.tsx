@@ -250,8 +250,8 @@ export const Profile = ({ address, isDelegate }: ProfileProps) => {
         </div>
       ) : null}
 
-      <div className="flex items-start gap-[10px]">
-        <div className="flex-1 flex flex-col gap-[20px]">
+      <div className="flex flex-col lg:flex-row lg:items-start gap-[15px] lg:gap-[20px]">
+        <div className="flex-1 flex flex-col gap-[15px] lg:gap-[20px]">
           <User
             address={address}
             profile={profile}
@@ -267,10 +267,9 @@ export const Profile = ({ address, isDelegate }: ProfileProps) => {
             delegationStatusText={delegationStatusText}
             isDelegateMappingsLoading={isDelegateMappingsLoading}
           />
-
           <ReceivedDelegations address={address} />
         </div>
-        <div className="flex flex-col gap-[20px]">
+        <div className="hidden lg:flex flex-col gap-[15px] lg:gap-[20px] w-[360px]">
           <SystemInfo />
           <Faqs type="delegate" />
         </div>

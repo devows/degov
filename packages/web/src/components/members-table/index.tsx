@@ -80,7 +80,7 @@ export function MembersTable({
         className: "text-center",
         render: (record) => {
           if (isProfilePullLoading || isProposalMetricsLoading) {
-            return <Skeleton className="h-[30px] w-[140px]" />;
+            return <Skeleton className="h-[30px] w-full" />;
           }
 
           const userPower = record?.power ? BigInt(record.power) : 0n;
@@ -95,11 +95,11 @@ export function MembersTable({
               : 0;
 
           return (
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center gap-[5px]">
               <div className="text-[14px]" title={formattedAmount?.formatted}>
                 {formattedAmount?.formatted}
               </div>
-              <div>({percentage.toFixed(1)}%)</div>
+              <div>({percentage.toFixed(2)}%)</div>
             </div>
           );
         },
@@ -153,7 +153,7 @@ export function MembersTable({
   );
 
   return (
-    <div className="rounded-[14px] bg-card p-[20px]">
+    <div className="rounded-[14px] bg-card p-[20px] shadow-card">
       <CustomTable
         tableClassName="table-fixed"
         columns={columns}

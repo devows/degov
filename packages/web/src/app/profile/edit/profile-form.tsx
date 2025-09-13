@@ -238,7 +238,7 @@ export function ProfileForm({
   }, [data, form]);
 
   return (
-    <div className="flex flex-col gap-[20px] rounded-[14px] bg-card p-[20px]">
+    <div className="flex flex-col gap-[20px] rounded-[14px] bg-card p-[20px] shadow-card">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit((data) =>
@@ -251,7 +251,7 @@ export function ProfileForm({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <div className="flex flex-row items-center justify-between gap-[10px]">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[10px]">
                   <FormLabel className="w-[140px] shrink-0">
                     Display Name
                   </FormLabel>
@@ -259,7 +259,7 @@ export function ProfileForm({
                     <Input
                       placeholder="Enter your name"
                       {...field}
-                      className="w-full border-border bg-transparent"
+                      className="w-full border-border bg-transparent placeholder:text-foreground/50 placeholder:text-[14px] placeholder:font-normal"
                     />
                   </FormControl>
                 </div>
@@ -273,7 +273,7 @@ export function ProfileForm({
             name="delegate_statement"
             render={({ field }) => (
               <FormItem>
-                <div className="flex flex-row items-center justify-between gap-[10px]">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[10px]">
                   <FormLabel className="w-[140px] shrink-0">
                     Delegate Statement
                   </FormLabel>
@@ -281,7 +281,7 @@ export function ProfileForm({
                     <Textarea
                       placeholder="You statement that shows your commitment to the community and what you will do for the community."
                       {...field}
-                      className="w-full border-border bg-transparent"
+                      className="w-full border-border bg-transparent placeholder:text-foreground/50 placeholder:text-[14px] placeholder:font-normal"
                     />
                   </FormControl>
                 </div>
@@ -295,14 +295,14 @@ export function ProfileForm({
             name="email"
             render={({ field }) => (
               <FormItem>
-                <div className="flex flex-row items-center justify-between gap-[10px]">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[10px]">
                   <FormLabel className="w-[140px] shrink-0">Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       placeholder="email@example.com"
                       {...field}
-                      className="w-full border-border bg-transparent"
+                      className="w-full border-border bg-transparent placeholder:text-foreground/50 placeholder:text-[14px] placeholder:font-normal"
                     />
                   </FormControl>
                 </div>
@@ -316,13 +316,13 @@ export function ProfileForm({
             name="twitter"
             render={({ field }) => (
               <FormItem>
-                <div className="flex flex-row items-center justify-between gap-[10px]">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[10px]">
                   <FormLabel className="w-[140px] shrink-0">X</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="username or https://x.com/username"
                       {...field}
-                      className="w-full border-border bg-transparent"
+                      className="w-full border-border bg-transparent placeholder:text-foreground/50 placeholder:text-[14px] placeholder:font-normal"
                     />
                   </FormControl>
                 </div>
@@ -336,13 +336,13 @@ export function ProfileForm({
             name="telegram"
             render={({ field }) => (
               <FormItem>
-                <div className="flex flex-row items-center justify-between gap-[10px]">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[10px]">
                   <FormLabel className="w-[140px] shrink-0">Telegram</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="username or https://t.me/username"
                       {...field}
-                      className="w-full border-border bg-transparent"
+                      className="w-full border-border bg-transparent placeholder:text-foreground/50 placeholder:text-[14px] placeholder:font-normal"
                     />
                   </FormControl>
                 </div>
@@ -356,7 +356,7 @@ export function ProfileForm({
             name="github"
             render={({ field }) => (
               <FormItem>
-                <div className="flex flex-row items-center justify-between gap-[10px]">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[10px]">
                   <FormLabel className="w-[140px] shrink-0">Github</FormLabel>
                   <FormControl>
                     <Input
@@ -376,13 +376,13 @@ export function ProfileForm({
             name="discord"
             render={({ field }) => (
               <FormItem>
-                <div className="flex flex-row items-center justify-between gap-[10px]">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[10px]">
                   <FormLabel className="w-[140px] shrink-0">Discord</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="userid or https://discordapp.com/users/userid"
                       {...field}
-                      className="w-full border-border bg-transparent"
+                      className="w-full border-border bg-transparent placeholder:text-foreground/50 placeholder:text-[14px] placeholder:font-normal"
                     />
                   </FormControl>
                 </div>
@@ -397,7 +397,7 @@ export function ProfileForm({
             <Button
               type="button"
               variant="outline"
-              className="w-[155px] rounded-[100px] border-border bg-card"
+              className="w-[155px] rounded-[100px]"
               onClick={() => {
                 form.reset();
                 router.push("/profile");
