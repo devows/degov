@@ -121,18 +121,28 @@ jobs:
       - name: Update manifest
         working-directory: gitops-repo
         run: |
-          DEPLOY_FILE="appsmanifests/degov-indexer/overlays/env/prod/deployment-patch.yaml"
+          DEPLOY_FILES=(
+            "appsmanifests/degov-indexer/overlays/env/prod/deployment-patch.yaml"
+            "appsmanifests/ringdao-indexer/overlays/env/prod/deployment-patch.yaml"
+            "appsmanifests/kingdao-indexer/overlays/env/prod/deployment-patch.yaml"
+          )
           
-          # Verify file exists
-          ls -l ./${DEPLOY_FILE}
-          
-          # Update image in deployment file
-          sed -i "s|image: .*|image: ${{ env.DOCKER_IMAGE_NAME }}|" ./${DEPLOY_FILE}
+          for DEPLOY_FILE in "${DEPLOY_FILES[@]}"; do
+            echo "Updating file: $DEPLOY_FILE"
+            
+            if [ -f "./${DEPLOY_FILE}" ]; then
+              # Update image in deployment file
+              sed -i "s|image: .*|image: ${{ env.DOCKER_IMAGE_NAME }}|" "./${DEPLOY_FILE}"
+              echo "✅ Updated: $DEPLOY_FILE"
+            else
+              echo "⚠️  File not found: $DEPLOY_FILE"
+            fi
+          done
           
           # Commit and push changes
           git config user.email "aitops@xiequan.info"
           git config user.name "aitops01"
-          git add ./${DEPLOY_FILE}
+          git add "${DEPLOY_FILES[@]}"
           git commit -m "Update image to ${{ env.DOCKER_IMAGE_NAME }}"
           git push origin main
       
