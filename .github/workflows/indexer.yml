@@ -18,9 +18,9 @@ on:
 env:
   TZ: 'Asia/Shanghai'
   DOCKER_REG_HOST: ghcr.io
-  DOCKERFILE_PATH: ./docker/indexer.Dockerfile  # 保持不变
-  DOCKER_BUILD_CONTEXT: .      # 保持不变
-  IMAGE_NAME_PREFIX: ${{ github.repository_owner }}  # 自动获取组织/用户名
+  DOCKERFILE_PATH: ./docker/indexer.Dockerfile
+  DOCKER_BUILD_CONTEXT: .
+  IMAGE_NAME_PREFIX: ${{ github.repository_owner }}
   REPO_URL: ${{ github.server_url }}/${{ github.repository }}
 jobs:
   build:
@@ -96,8 +96,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: aitops@xiequan.info  # 或使用 ${{ github.actor }}
-          password: ${{ secrets.Registry }}  # 或使用您提供的 PAT
+          username: aitops@xiequan.info
+          password: ${{ secrets.Registry }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -122,16 +122,15 @@ jobs:
         working-directory: gitops-repo
         run: |
           DEPLOY_FILES=(
-            "appsmanifests/degov-indexer/overlays/env/prod/deployment-patch.yaml"
-            "appsmanifests/ringdao-indexer/overlays/env/prod/deployment-patch.yaml"
-            "appsmanifests/kingdao-indexer/overlays/env/prod/deployment-patch.yaml"
+            "appsmanifests/ring-dao-indexer/overlays/env/prod/deployment-patch.yaml"
+            "appsmanifests/kton-dao-indexer/overlays/env/prod/deployment-patch.yaml"
           )
           
           for DEPLOY_FILE in "${DEPLOY_FILES[@]}"; do
             echo "Updating file: $DEPLOY_FILE"
             
             if [ -f "./${DEPLOY_FILE}" ]; then
-              # Update image in deployment file
+              #  Update image in deployment file
               sed -i "s|image: .*|image: ${{ env.DOCKER_IMAGE_NAME }}|" "./${DEPLOY_FILE}"
               echo "✅ Updated: $DEPLOY_FILE"
             else
