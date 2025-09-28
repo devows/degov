@@ -1,101 +1,138 @@
-name: Release
+name: build degov-web
 
 on:
-  workflow_dispatch:
   push:
+    paths:
+      - 'packages/web/**'
+      - 'web.Dockerfile'
+      - 'pnpm-lock.yaml'
+      - 'degov.yml'
     branches:
-      - main  # 监听 main 分支推送
+      - main
     tags:
-      - "v*"   # 监听 Tag 推送
-
+      - '*'
+  workflow_dispatch:
+  pull_request:
+    type: [opened]
+  
 env:
-  DOCKER_REGISTRY: ghcr.io
-
+  TZ: 'Asia/Shanghai'
+  DOCKER_REG_HOST: ghcr.io
+  DOCKERFILE_PATH: ./docker/web.Dockerfile  # 保持不变
+  DOCKER_BUILD_CONTEXT: .      # 保持不变
+  IMAGE_NAME_PREFIX: ${{ github.repository_owner }}  # 自动获取组织/用户名
+  REPO_URL: ${{ github.server_url }}/${{ github.repository }}
 jobs:
-  release-backend:
-    name: Release backend
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Docker login
-        uses: docker/login-action@v3
+      - name: checkout
+        uses: actions/checkout@v4.2.2
         with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          registry: ${{ env.DOCKER_REGISTRY }}
-
-      - uses: benjlevesque/short-sha@v3.0
-      - uses: olegtarasov/get-tag@v2.1.4
-      - name: Get branch names
-        id: branch-names
-        uses: tj-actions/branch-names@v9
-
-      # 构建并推送镜像（分支推送时）
-      - name: Publish docker image for branch push
-        id: push-branch-image
-        if: startsWith(github.ref, 'refs/heads/')
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          context: backend
-          file: backend/Dockerfile
-          tags: |
-            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/backend:sha-${{ env.SHA }}
-            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/backend:staging
-          build-args: |
-            APP_VERSION=${{ steps.branch-names.outputs.current_branch }}-${{ env.SHA }}
-
-      # 构建并推送镜像（Tag 推送时）
-      - name: Publish docker image for tag push
-        id: push-tag-image
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          context: backend
-          file: backend/Dockerfile
-          tags: |
-            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/backend:sha-${{ env.SHA }}
-            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/backend:${{ env.GIT_TAG_NAME }}
-            ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/backend:latest
-          build-args: |
-            APP_VERSION=${{ env.GIT_TAG_NAME }}-${{ env.SHA }}
-
-      # 设置 DOCKER_IMAGE_NAME（分支推送时用 sha，Tag 推送时用 Tag）
-      - name: Set DOCKER_IMAGE_NAME for GitOps update
+          fetch-depth: 0
+      - name: Setup environment variables
+        id: vars 
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            # Tag 推送：使用 Tag 镜像（如 v1.0.0）
-            echo "DOCKER_IMAGE_NAME=${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/backend:${{ env.GIT_TAG_NAME }}" >> $GITHUB_ENV
+          # 记录构建开始时间（北京时间）
+          echo "BUILD_START_TIME=$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+          
+          # 设置分支或标签变量
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+            echo "IS_TAG_EVENT=true" >> $GITHUB_ENV
           else
-            # 分支推送：使用 sha 镜像（如 sha-abc123）
-            echo "DOCKER_IMAGE_NAME=${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/backend:sha-${{ env.SHA }}" >> $GITHUB_ENV
+            echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+            echo "IS_TAG_EVENT=false" >> $GITHUB_ENV
           fi
 
-      # 检出 GitOps 仓库并更新镜像
+          # 确保 REPO_NAME 有效
+          REPO_NAME=$(echo "${{ github.repository }}" | awk -F'/' '{print $2}')
+          echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
+          echo "DOCKER_REG_HOST=ghcr.io" >> $GITHUB_ENV
+
+          #获取PUSH_AUTHOR、SHORT_SHA
+          echo "PUSH_AUTHOR=${{ github.actor }}" >> $GITHUB_ENV
+          echo "commitHash=${{ github.sha }}" >> $GITHUB_ENV
+          SHORT_SHA=$(git rev-parse --short=8 HEAD)
+          echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
+
+          #获取BUILD_URL、REPO_URL
+          BUILD_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "BUILD_URL=${BUILD_URL}" >> $GITHUB_ENV
+
+          # 设置镜像版本（强制保证非空）
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            DOCKER_IMAGE_VERSION="${GITHUB_REF#refs/tags/}"
+          else
+            BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+            SHORT_SHA=$(git rev-parse --short=8 HEAD 2>/dev/null || echo "unknown")
+            DOCKER_IMAGE_VERSION="${BRANCH_NAME}-${SHORT_SHA}-${{ github.run_number }}"
+          fi
+
+          # 设置默认值（双重保障）
+          DOCKER_IMAGE_VERSION="${DOCKER_IMAGE_VERSION:-latest}"
+          echo "DOCKER_IMAGE_VERSION=${DOCKER_IMAGE_VERSION}" >> $GITHUB_ENV
+
+          # 生成镜像名称（严格格式校验）
+          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/${REPO_NAME}-web:${DOCKER_IMAGE_VERSION}"
+          echo "DOCKER_IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
+          echo "Generated image: ${IMAGE_NAME}"  # 调试输出
+      - name: Send start notification
+        run: |
+          if [[ "${{ env.IS_TAG_EVENT }}" == "true" ]]; then
+            MARKDOWN_MSG="# <font color='info'>构建开始</font>\n<font>**组织名称：**${{ env.IMAGE_NAME_PREFIX }}</font>\n<font>**触发成员：**${{ env.PUSH_AUTHOR }}</font>\n<font>**触发时间：**$(date '+%Y-%m-%d %H:%M:%S')</font>\n<font>**事件：**启动构建计划</font>\n# <font>事件内容：</font>\n> Job：${{ github.workflow }}\n> 构建编号：[${{ github.run_id }}](${{ env.BUILD_URL }})\n> 代码仓库：[${REPO_NAME}](${{ env.REPO_URL }})\n> Commit: ${{ env.SHORT_SHA }}\n> 触发方式：${{ env.PUSH_AUTHOR }} 推送到标签 ${{ env.TAG_NAME }} 时触发\n> 状态：开始执行"
+          else
+            MARKDOWN_MSG="# <font color='info'>构建开始</font>\n<font>**组织名称：**${{ env.IMAGE_NAME_PREFIX }}</font>\n<font>**触发成员：**${{ env.PUSH_AUTHOR }}</font>\n<font>**触发时间：**$(date '+%Y-%m-%d %H:%M:%S')</font>\n<font>**事件：**启动构建计划</font>\n# <font>事件内容：</font>\n> Job：${{ github.workflow }}\n> 构建编号：[${{ github.run_id }}](${{ env.BUILD_URL }})\n> 代码仓库：[${REPO_NAME}](${{ env.REPO_URL }})\n> Commit: ${{ env.SHORT_SHA }}\n> 触发方式：${{ env.PUSH_AUTHOR }} 推送到分支 ${{ env.BRANCH_NAME }} 时触发\n> 状态：开始执行"
+          fi
+          
+          curl -s -X POST https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=5de6a4b4-01b4-4c40-af0d-45a3b196a440 \
+               -H 'Content-Type: application/json' \
+               -d "{\"msgtype\": \"markdown\", \"markdown\": {\"content\": \"${MARKDOWN_MSG}\"}}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: aitops@xiequan.info  # 或使用 ${{ github.actor }}
+          password: ${{ secrets.Registry }}  # 或使用您提供的 PAT
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ env.DOCKER_BUILD_CONTEXT }}
+          file: ${{ env.DOCKERFILE_PATH }}
+          build-args: DEPLOY_ENV=${{ env.ENV_TYPE }}
+          push: true
+          tags: ${{ env.DOCKER_IMAGE_NAME }}
+          cache-from: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}-cache
+          cache-to: type=registry,ref=${{ env.DOCKER_IMAGE_NAME }}-cache,mode=max
+
       - name: Checkout GitOps repo
         uses: actions/checkout@v3
         with:
           repository: devows/gitops-ringdao
           ref: main
           path: gitops-repo
-          token: ${{ secrets.Registry }}  # 确保有写入权限
+          token: ${{ secrets.Registry }}
 
       - name: Update manifest
         working-directory: gitops-repo
         run: |
-          DEPLOY_FILE="appsmanifests/degov-square-web/overlays/env/prod/deployment-patch.yaml"
+          DEPLOY_FILE="appsmanifests/degov-web/overlays/env/prod/deployment-patch.yaml"
           
-          # 验证文件是否存在
+          # Verify file exists
           ls -l ./${DEPLOY_FILE}
           
-          # 更新镜像地址（使用 DOCKER_IMAGE_NAME）
+          # Update image in deployment file
           sed -i "s|image: .*|image: ${{ env.DOCKER_IMAGE_NAME }}|" ./${DEPLOY_FILE}
           
-          # 提交并推送更改
+          # Commit and push changes
           git config user.email "aitops@xiequan.info"
           git config user.name "aitops01"
           git add ./${DEPLOY_FILE}
           git commit -m "Update image to ${{ env.DOCKER_IMAGE_NAME }}"
           git push origin main
+      
